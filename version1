@@ -1,0 +1,87 @@
+import { LightningElement, wire, api } from 'lwc';
+
+// import getDespesa from '@salesforce/apex/getDespesa.getDespesa';
+import getAcc from '@salesforce/apex/getDespesa.getAcc';
+import getDesp from '@salesforce/apex/getDespesa.getDesp';
+// import { getRecord } from 'lightning/uiRecordApi';
+
+export default class DespesasDeContas extends LightningElement {
+    @api recordId;
+    // name;
+
+    // @wire(getRecord) getId(){
+    //     console.log(this.recordId);
+    //     console.log(this.name = this.account.fields.Name.value);
+
+        
+    // }
+
+    @wire(getAcc) wireAccounts({error, data}){
+        var divblock = this.template.querySelector('[data-id="listaArray"]');
+        if(error){
+
+            console.log("error");
+            console.dir(error);
+
+        } else if(data){
+            console.log("conta");
+            console.dir(data);
+
+            for(let acc of data){
+                let accId = acc.Id;
+                let accName = acc.Name;
+                // var p = document.createElement('p');
+                // p.innerHTML = 'Conta :' + accName;
+ 
+             console.log("conta");
+             console.dir(accId);
+             console.log(accName);
+             divblock.appendChil(p);
+             }
+        }
+
+    }
+    @wire(getDesp) wireDespesa({error, data}){
+        if(error){
+
+            console.log("error");
+            console.dir(error);
+
+        } else if(data){
+            var divblock = this.template.querySelector('[data-id="listaArray"]');
+            console.log("despesa");
+            console.dir(data);
+            
+
+                for(let desp of data){
+                    let idn = desp.Name;
+                    let accRel = desp.ContaRelacionada__c;
+                    let getId = this.recordId;
+                    console.log("desp antes do if");
+                    console.log(this.recordId);
+                    console.log(accRel);
+                    console.log(getId);
+
+                    if(this.recordId == accRel ){ 
+                        
+                        console.log("despesa no if");
+                        console.log(getId);
+                        console.log(accRel);
+                    //    let accNaME = ContaRelacionada__r.Name;
+                    var p = document.createElement('p');
+                    p.innerHTML = 'Despesa: ' + idn + 'da Conta ' + desp.ContaRelacionada__c;
+                    
+                    // console.log("despesa");
+                    // console.dir(idn);
+                    // console.log(accRel);
+                    // console.log(getRecord);
+                    divblock.appendChild(p);
+                }
+            }
+        }
+
+    }
+
+    
+
+}
