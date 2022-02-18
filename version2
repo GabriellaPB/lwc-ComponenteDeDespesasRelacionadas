@@ -1,0 +1,94 @@
+import { LightningElement, api, wire } from 'lwc';
+
+
+import getDesp from '@salesforce/apex/getDespesa.getDesp';
+import USERLOCALCURRENCY from '@salesforce/i18n/currency';
+
+
+export default class DespesasDeContas extends LightningElement {
+    @api recordId;
+
+    @wire(getDesp, { accountId: '$recordId'}) listaDespesa;
+      
+   
+   
+
+    @wire(getDesp, { accountId: '$recordId'}) wireDespesa({error, data}){
+        var divblock = this.template.querySelector('[data-id="listaArray"]');
+        
+        if(error){
+
+            console.log("error");
+            console.dir(error);
+
+        } else if(data){
+           
+            console.log("despesa");
+            console.dir(data);
+            for(let desp of data){
+                this.nome = 'Despesas da Conta '+ desp.ContaRelacionada__r.Name;
+                this.linkDesp = "https://devgabriella-dev-ed.lightning.force.com/lightning/r/Despesa__c/" + desp.Id +"/view";
+                // USERLOCALCURRENCY = desp.Valor_da_despesa__c;
+            //     var br = parseFloat(desp.Valor_da_despesa__c).toLocaleString('pt-BR');
+            //   console.log(br);
+            //     var p = document.createElement('p');
+            //     p.innerHTML = 'Despesa: '+ desp.Name + ' Conta: '+ desp.ContaRelacionada__r.Name; 
+            //     var p2 = document.createElement('p');
+                
+            //     p2.innerHTML = ' Valor: R$' + br;
+
+            //     divblock.appendChild(p);
+            //     divblock.appendChild(p2);
+            }
+            
+               
+         }
+    }
+
+    nome;
+    linkDesp;
+
+   
+      
+
+    
+}
+
+
+<template>
+
+    <div data-id="listaArray" ></div>
+    <lightning-card title= {nome}>
+        <ul class="slds-m-around_medium">
+        <template for:each={listaDespesa.data} for:item="desp">
+            <lightning-card key={desp.id}  >
+                <lightning-icon icon-name="custom:custom17" title="custom17"></lightning-icon>
+               <li>
+                <p>Nome da Despesa : <a href={linkDesp} target="_blank"> {desp.Name}</a></p>
+                <p>Valor da despesa: R$ <lightning-formatted-number value={desp.Valor_da_despesa__c} format-style="decimal" minimum-integer-digits="3"></lightning-formatted-number></p>
+                <p>Data da Despesa: {desp.DataDespesa__c}</p>
+            </li>
+             
+            </lightning-card>
+        </template>
+    </ul>
+       
+
+      
+        
+    </lightning-card>
+
+</template>
+
+public class getDespesa {
+    
+ 
+
+      @AuraEnabled (cacheable=true)
+      public static List<Despesa__c> getDesp(String accountId){
+        return [SELECT Id, name,  ContaRelacionada__c, ContaRelacionada__r.Name, 	DataDespesa__c, FORMAT(Valor_da_despesa__c) FROM Despesa__c  WHERE ContaRelacionada__c =:accountId];
+           
+         
+        }
+   
+}
